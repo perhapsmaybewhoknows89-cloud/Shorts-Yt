@@ -1,0 +1,26 @@
+name: Build daily short
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Codziennie o 6:00 UTC
+  workflow_dispatch:
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests gTTS pillow
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Run script
+        env:
+          OPENROUTER_KEY: ${{ secrets.OPENROUTER_KEY }}
+          GMAIL_ADDR: ${{ secrets.GMAIL_ADDR }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python make_short.py
